@@ -12,6 +12,10 @@
         lastPress = undefined,
         gameover = true,
         pause = true,
+        currentScene = 0,
+        scenes = [],
+        mainScene = null,
+        gameScene = null,
         body = [],
         //wall = [],
         dir = 0,
@@ -40,37 +44,6 @@
         this.y = (y === undefined) ? 0 : y;
         this.width = (width === undefined) ? 0 : width;
         this.height = (height === undefined) ? this.width : height;
-        
-        /*this.intersects = function (rect) {
-            if (rect === undefined) {
-                window.console.warn('Missing parameters on function intersects');
-            } else {
-                return (this.x < rect.x + rect.width &&
-                    this.x + this.width > rect.x &&
-                    this.y < rect.y + rect.height &&
-                    this.y + this.height > rect.y);
-            } 
-        };
-        
-        this.fill = function (ctx) {
-            if (ctx === undefined) {
-                window.console.warn('Missing parameters on function fill');
-            } else {
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-            }
-        }; 
-
-        this.drawImage = function (ctx, img) {
-            if (img === undefined) {
-                window.console.warn('Missing parameters on function drawImage');
-            } else {
-                if (img.width) {
-                    ctx.drawImage(img, this.x, this.y);
-                } else {
-                    ctx.strokeRect(this.x, this.y, this.width, this.height);
-                } 
-            }
-        };*/
 
         Rectangle.prototype = {
             constructor: Rectangle,
@@ -108,36 +81,22 @@
         };
     }
 
-    /*Rectangle.prototype.intersects = function (rect) {
-        if (rect === undefined) {
-            window.console.warn('Missing parameters on function intersects');
-        } else {
-            return (this.x < rect.x + rect.width &&
-                this.x + this.width > rect.x &&
-                this.y < rect.y + rect.height &&
-                this.y + this.height > rect.y);
-        } 
+    function Scene() {
+        this.id = scenes.length;
+        scenes.push(this);
+    }
+    
+    Scene.prototype = {
+        constructor: Scene,
+        load: function () {},
+        paint: function (ctx) {},
+        act: function () {}
     };
-
-    Rectangle.prototype.fill = function (ctx) {
-        if (ctx === undefined) {
-            window.console.warn('Missing parameters on function fill');
-        } else {
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-        }
-    };
-
-    Rectangle.prototype.drawImage = function (ctx, img) {
-        if (img === undefined) {
-            window.console.warn('Missing parameters on function drawImage');
-        } else {
-            if (img.width) {
-                ctx.drawImage(img, this.x, this.y);
-            } else {
-                ctx.strokeRect(this.x, this.y, this.width, this.height);
-            } 
-        }
-    };*/
+    
+    function loadScene(scene) {
+        currentScene = scene.id;
+        scenes[currentScene].load();
+    }
 
     function random(max) {
         return ~~(Math.random() * max);
@@ -164,62 +123,91 @@
         gameover = false;
     }
 
-    function paint(ctx) {
+    // Main Scene
+    mainScene = new Scene();
+    
+    mainScene.paint = function (ctx) {
+        // Clean canvas
+        ctx.fillStyle = '#030';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+        // Draw title
+        ctx.fillStyle = '#fff';
+        ctx.textAlign = 'center';
+        ctx.fillText('SNAKE', 150, 60);
+        ctx.fillText('Press Enter', 150, 90);
+    };
+
+    mainScene.act = function () {
+        // Load next scene
+        if (lastPress === KEY_ENTER) {
+            loadScene(gameScene);
+            lastPress = null;
+        }
+    };
+    
+    // Game Scene
+    gameScene = new Scene();
+    
+    gameScene.load = function () {
+        score = 0;
+        dir = 1;
+        body.length = 0;
+        body.push(new Rectangle(40, 40, 10, 10));
+        body.push(new Rectangle(0, 0, 10, 10));
+        body.push(new Rectangle(0, 0, 10, 10));
+        food.x = random(canvas.width / 10 - 1) * 10;
+        food.y = random(canvas.height / 10 - 1) * 10;
+        gameover = false;
+    };
+    
+    gameScene.paint = function (ctx) {
         var i = 0,
             l = 0;
         
         // Clean canvas
         ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+    
         // Draw player
-        //ctx.fillStyle = '#0cc';
         for (let i = 0; i < body.length; i+=1) {
-            //body[i].fill(ctx);
             ctx.drawImage(iBody, body[i].x, body[i].y); 
         }
-
-        /* Draw walls
-        ctx.fillStyle = '#999';
-        for (i = 0, l = wall.length; i < l; i += 1) {
-            wall[i].fill(ctx);
-        }*/
-
-        /* Draw food
-        ctx.fillStyle = '#f00';
-        food.fill(ctx);*/
+        
+        // Draw walls
+        //ctx.fillStyle = '#999';
+        //for (i = 0, l = wall.length; i < l; i += 1) {
+        //    wall[i].fill(ctx);
+        //}
+    
+        // Draw food
         ctx.strokeStyle = '#f00';
         ctx.drawImage(iFood, food.x, food.y);
-
+    
         // Draw score
         ctx.fillStyle = '#0f0';
-        ctx.font = '20px Arial';
-        ctx.fillText('Score: ' + score, 500, 30);
-
-        // Debug last key pressed
-        ctx.fillStyle = '#fff';
-        //ctx.fillText('Last Press: ' + lastPress, 0, 20);
-        
+        ctx.font = '15px Arial';
+        ctx.fillText('Score: ' + score, 530, 30);
+    
         // Draw pause
         if (pause) {
-            ctx.textAlign = 'center';
             if (gameover) {
-                ctx.fillText('GAME OVER', 300, 150);
+                ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2);
             } else {
-                ctx.fillText('PAUSE', 300, 150);
+                ctx.fillText('PAUSE', canvas.width/2, canvas.height/2);
             }
-            ctx.textAlign = 'left';
+            ctx.textAlign = 'center';
         } 
-    }
+    };
 
-    function act() {
-        var i,
-            l;
+    gameScene.act = function () {
+        var i = 0,
+            l = 0;
         
         if (!pause) {   
             // GameOver Reset
             if (gameover) {
-            reset ();
+            loadScene (mainScene);
             }
 
             // Move Body
@@ -318,12 +306,16 @@
 
     function repaint() {
         window.requestAnimationFrame(repaint);
-        paint(ctx);
+        if (scenes.length) {
+            scenes[currentScene].paint(ctx);
+        }
     }
 
     function run() {
         setTimeout(run, 60);
-        act();
+        if (scenes.length) {
+            scenes[currentScene].act();
+        }
     }
 
     function init() {
@@ -332,7 +324,6 @@
         ctx = canvas.getContext('2d');
 
         // Create initial food
-        //body[0] = new Rectangle(40, 40, 10, 10);
         food = new Rectangle(80, 80, 10, 10);
 
         // Load assets
@@ -345,7 +336,6 @@
             aEat.src = 'assets/chomp.m4a';
             aDie.src = 'assets/dies.m4a';
         }
-    
 
         /*Create walls
         wall.push(new Rectangle(0, 0, 10, 10));
