@@ -308,13 +308,13 @@
         }
     }
 
-    /*function rezise() {
+    function rezise() {
+        var w = window.innerWidth / canvas.width;
+        var h = window.innerHeight / canvas.height;
         var scale = Math.min(h, w);
         canvas.style.width = (canvas.width * scale) + 'px';
         canvas.style.height = (canvas.height * scale) + 'px';    
-        var w = window.innerWidth / canvas.width;
-        var h = window.innerHeight / canvas.height;
-    }*/
+    }
 
     function repaint() {
         window.requestAnimationFrame(repaint);
@@ -331,7 +331,7 @@
         canvas = document.getElementById('canvas');
         ctx = canvas.getContext('2d');
 
-        // Create body[0]
+        // Create initial food
         //body[0] = new Rectangle(40, 40, 10, 10);
         food = new Rectangle(80, 80, 10, 10);
 
@@ -356,9 +356,9 @@
         // Start game
         run();
         repaint(); 
-        //rezise();
+        rezise();
     }
 
-    //window.addEventListener('resize', resize, false);
     window.addEventListener('load', init, false);
+    window.addEventListener('resize', resize, false);
 } (window));
