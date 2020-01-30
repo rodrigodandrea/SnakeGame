@@ -9,9 +9,9 @@
         
         canvas = undefined,
         ctx = undefined,
-        lastPress = undefined,
+        lastPress = null,
         gameover = true,
-        pause = true,
+        pause = false,
         currentScene = 0,
         scenes = [],
         mainScene = null,
@@ -156,7 +156,7 @@
         ctx = canvas.getContext('2d');
 
         // Create initial food
-        food = new Rectangle(80, 80, 10, 10);
+        food = new Rectangle(80, 80, 20, 20);
 
         // Load assets
         iBody.src = 'assets/body.png';
@@ -217,9 +217,9 @@
         score = 0;
         dir = 1;
         body.length = 0;
-        body.push(new Rectangle(40, 40, 10, 10));
-        body.push(new Rectangle(0, 0, 10, 10));
-        body.push(new Rectangle(0, 0, 10, 10));
+        body.push(new Rectangle(40, 40, 20, 20));
+        body.push(new Rectangle(0, 0, 20, 20));
+        body.push(new Rectangle(0, 0, 20, 20));
         food.x = random(canvas.width / 10 - 1) * 10;
         food.y = random(canvas.height / 10 - 1) * 10;
         gameover = false;
@@ -251,7 +251,7 @@
         // Draw score
         ctx.fillStyle = '#85c84f';
         ctx.font = '15px Arial';
-        ctx.fillText('Score: ' + score, 530, 30);
+        ctx.fillText('Score: ' + score, 1100, 50);
     
         // Draw pause
         if (pause) {
@@ -296,16 +296,16 @@
             
             // Move Rect
             if (dir == 0) {
-                body[0].y -= 10;
+                body[0].y -= 20;
             }
             if (dir == 1) {
-                body[0].x += 10; 
+                body[0].x += 20; 
             }
             if (dir == 2) {
-                body[0].y += 10;
+                body[0].y += 20;
             }
             if (dir == 3) {
-                body[0].x -= 10; 
+                body[0].x -= 20; 
             }
 
             // Out Screen
@@ -334,7 +334,7 @@
 
             // Food Intersects
             if (body[0].intersects(food)) {
-                body.push(new Rectangle(food.x - body.length, food.y - body.length, 10, 10));
+                body.push(new Rectangle(food.x - body.length, food.y - body.length, 20, 20));
                 score += 1;
                 food.x = random(canvas.width / 10 - 1) * 10;
                 food.y = random(canvas.height / 10 - 1) * 10;
