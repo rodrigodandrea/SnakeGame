@@ -162,11 +162,11 @@
         iBody.src = 'assets/body.png';
         iFood1.src = 'assets/fruit.png';
         if (canPlayOgg()) {
-            aEat.src = 'assets/chomp.oga';
-            aDie.src = 'assets/dies.oga';
+            aEat.src = 'assets/eat.ogg';
+            aDie.src = 'assets/Fail.ogg';
         } else {
-            aEat.src = 'assets/chomp.m4a';
-            aDie.src = 'assets/dies.m4a';
+            aEat.src = 'assets/eat.m4a';
+            aDie.src = 'assets/Fail.m4a';
         }
 
         // Load saved highscores
